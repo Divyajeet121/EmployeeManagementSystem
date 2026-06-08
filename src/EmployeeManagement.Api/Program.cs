@@ -101,7 +101,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 var pageRewriteOptions = new RewriteOptions()
-    .AddRewrite("^dashboard/?$", "pages/dashboard.html", skipRemainingRules: true)
+    .AddRewrite("^dashboard/?$", "pages/dashboard.html", skipRemainingRules: true) 
     .AddRewrite("^employees/?$", "pages/employees.html", skipRemainingRules: true);
 app.UseRewriter(pageRewriteOptions);
 
