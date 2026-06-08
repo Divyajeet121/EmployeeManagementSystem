@@ -1,8 +1,11 @@
+using System.Data;
 using EmployeeManagement.Application.DTOs;
 using EmployeeManagement.Application.Interfaces;
 using EmployeeManagement.Domain.Entities;
 using EmployeeManagement.Infrastructure.Persistence;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace EmployeeManagement.Infrastructure.Repositories;
 
@@ -15,9 +18,13 @@ public class EmployeeRepository : IEmployeeRepository
         _context = context;
     }
 
-    public Task<Employee?> GetByIdAsync(int employeeId)
+    public async Task<Employee?> GetByIdAsync(int employeeId)
     {
-        return _context.Employees.FirstOrDefaultAsync(e => e.EmployeeId == employeeId);
+        var employees = await _context.Employees
+            .FromSqlInterpolated($"EXEC dbo.usp_Employee_GetById @EmployeeId = {employeeId}")
+            .ToListAsync();
+
+        return employees.FirstOrDefault();
     }
 
     public async Task<(List<Employee> Items, int TotalCount)> GetPagedAsync(EmployeeQueryParameters parameters)
@@ -72,17 +79,50 @@ public class EmployeeRepository : IEmployeeRepository
 
     public async Task AddAsync(Employee employee)
     {
-        await _context.Employees.AddAsync(employee);
+        await using var command = CreateCommand("dbo.usp_Employee_Create");
+
+        command.Parameters.Add(new SqlParameter("@EmployeeCode", employee.EmployeeCode));
+        command.Parameters.Add(new SqlParameter("@FirstName", employee.FirstName));
+        command.Parameters.Add(new SqlParameter("@LastName", employee.LastName));
+        command.Parameters.Add(new SqlParameter("@Email", employee.Email));
+        command.Parameters.Add(new SqlParameter("@Department", employee.Department));
+        command.Parameters.Add(new SqlParameter("@Designation", employee.Designation));
+        command.Parameters.Add(new SqlParameter("@JoiningDate", employee.JoiningDate));
+        command.Parameters.Add(new SqlParameter("@IsActive", employee.IsActive));
+        command.Parameters.Add(new SqlParameter("@CreatedBy", employee.CreatedBy));
+
+        await OpenConnectionAsync();
+        var newEmployeeId = await command.ExecuteScalarAsync();
+        employee.EmployeeId = Convert.ToInt32(newEmployeeId);
     }
 
-    public void Update(Employee employee)
+    public async Task UpdateAsync(Employee employee)
     {
-        _context.Employees.Update(employee);
+        await using var command = CreateCommand("dbo.usp_Employee_Update");
+
+        command.Parameters.Add(new SqlParameter("@EmployeeId", employee.EmployeeId));
+        command.Parameters.Add(new SqlParameter("@EmployeeCode", employee.EmployeeCode));
+        command.Parameters.Add(new SqlParameter("@FirstName", employee.FirstName));
+        command.Parameters.Add(new SqlParameter("@LastName", employee.LastName));
+        command.Parameters.Add(new SqlParameter("@Email", employee.Email));
+        command.Parameters.Add(new SqlParameter("@Department", employee.Department));
+        command.Parameters.Add(new SqlParameter("@Designation", employee.Designation));
+        command.Parameters.Add(new SqlParameter("@JoiningDate", employee.JoiningDate));
+        command.Parameters.Add(new SqlParameter("@IsActive", employee.IsActive));
+        command.Parameters.Add(new SqlParameter("@ModifiedBy", employee.ModifiedBy ?? (object)DBNull.Value));
+
+        await OpenConnectionAsync();
+        await command.ExecuteNonQueryAsync();
     }
 
-    public void Remove(Employee employee)
+    public async Task DeleteAsync(int employeeId)
     {
-        _context.Employees.Remove(employee);
+        await using var command = CreateCommand("dbo.usp_Employee_Delete");
+
+        command.Parameters.Add(new SqlParameter("@EmployeeId", employeeId));
+
+        await OpenConnectionAsync();
+        await command.ExecuteNonQueryAsync();
     }
 
     public async Task<DashboardSummaryDto> GetDashboardSummaryAsync()
@@ -98,8 +138,26 @@ public class EmployeeRepository : IEmployeeRepository
         };
     }
 
-    public Task<int> SaveChangesAsync()
+    private SqlCommand CreateCommand(string procedureName)
     {
-        return _context.SaveChangesAsync();
+        var command = (SqlCommand)_context.Database.GetDbConnection().CreateCommand();
+        command.CommandText = procedureName;
+        command.CommandType = CommandType.StoredProcedure;
+
+        if (_context.Database.CurrentTransaction is not null)
+        {
+            command.Transaction = (SqlTransaction)_context.Database.CurrentTransaction.GetDbTransaction();
+        }
+
+        return command;
+    }
+
+    private async Task OpenConnectionAsync()
+    {
+        var connection = _context.Database.GetDbConnection();
+        if (connection.State != ConnectionState.Open)
+        {
+            await connection.OpenAsync();
+        }
     }
 }

@@ -5,6 +5,7 @@ using EmployeeManagement.Infrastructure;
 using EmployeeManagement.Infrastructure.Persistence;
 using EmployeeManagement.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -99,6 +100,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+var pageRewriteOptions = new RewriteOptions()
+    .AddRewrite("^dashboard/?$", "pages/dashboard.html", skipRemainingRules: true)
+    .AddRewrite("^employees/?$", "pages/employees.html", skipRemainingRules: true);
+app.UseRewriter(pageRewriteOptions);
+
+app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseCors("FrontendPolicy");

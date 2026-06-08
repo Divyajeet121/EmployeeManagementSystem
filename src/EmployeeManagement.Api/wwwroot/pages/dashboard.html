@@ -5,45 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Dashboard - Employee Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
     <link href="../css/site.css" rel="stylesheet" />
 </head>
 <body>
     <div id="navbarPlaceholder"></div>
 
     <div class="container">
-        <h4 class="mb-4">Dashboard</h4>
+        <div class="dashboard-hero mb-4">
+            <div>
+                <h4 class="mb-1" id="welcomeHeading">Welcome back</h4>
+                <p class="text-muted mb-0" id="todayLabel"></p>
+            </div>
+            <a class="btn btn-primary" href="/employees">
+                <i class="bi bi-people-fill me-1"></i> Manage Employees
+            </a>
+        </div>
 
         <div id="dashboardAlert" class="alert alert-danger d-none" role="alert"></div>
 
         <div class="row g-3">
             <div class="col-md-4">
                 <div class="card card-summary bg-total">
-                    <div class="card-body">
-                        <div class="text-uppercase small">Total Employees</div>
-                        <div class="summary-value" id="totalEmployees">--</div>
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-uppercase small">Total Employees</div>
+                            <div class="summary-value" id="totalEmployees">--</div>
+                        </div>
+                        <i class="bi bi-people summary-icon"></i>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card card-summary bg-active">
-                    <div class="card-body">
-                        <div class="text-uppercase small">Active Employees</div>
-                        <div class="summary-value" id="activeEmployees">--</div>
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-uppercase small">Active Employees</div>
+                            <div class="summary-value" id="activeEmployees">--</div>
+                        </div>
+                        <i class="bi bi-person-check summary-icon"></i>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card card-summary bg-inactive">
-                    <div class="card-body">
-                        <div class="text-uppercase small">Inactive Employees</div>
-                        <div class="summary-value" id="inactiveEmployees">--</div>
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-uppercase small">Inactive Employees</div>
+                            <div class="summary-value" id="inactiveEmployees">--</div>
+                        </div>
+                        <i class="bi bi-person-dash summary-icon"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="mt-4">
-            <a class="btn btn-primary" href="employees.html">Go to Employee Management</a>
+        <div class="row g-3 mt-1">
+            <div class="col-lg-7">
+                <div class="card panel-card h-100">
+                    <div class="card-body">
+                        <h6 class="panel-title"><i class="bi bi-bar-chart-line me-2"></i>Employees by Department</h6>
+                        <div id="departmentChart"></div>
+                        <p class="text-muted small mb-0 d-none" id="departmentEmptyLabel">No department data yet.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card panel-card h-100">
+                    <div class="card-body">
+                        <h6 class="panel-title"><i class="bi bi-clock-history me-2"></i>Recently Added</h6>
+                        <ul class="list-group list-group-flush" id="recentEmployeesList">
+                            <li class="list-group-item text-muted small">Loading...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

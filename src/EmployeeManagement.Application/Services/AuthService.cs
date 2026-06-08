@@ -31,6 +31,7 @@ public class AuthService : IAuthService
         {
             Token = token,
             Username = user.Username,
+            Email = user.Email,
             Role = user.Role.ToString(),
             ExpiresAt = expiresAt
         };

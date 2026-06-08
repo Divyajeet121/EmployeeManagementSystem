@@ -9,8 +9,7 @@ public interface IEmployeeRepository
     Task<(List<Employee> Items, int TotalCount)> GetPagedAsync(EmployeeQueryParameters parameters);
     Task<bool> ExistsByCodeOrEmailAsync(string employeeCode, string email, int? excludeEmployeeId = null);
     Task AddAsync(Employee employee);
-    void Update(Employee employee);
-    void Remove(Employee employee);
+    Task UpdateAsync(Employee employee);
+    Task DeleteAsync(int employeeId);
     Task<DashboardSummaryDto> GetDashboardSummaryAsync();
-    Task<int> SaveChangesAsync();
 }

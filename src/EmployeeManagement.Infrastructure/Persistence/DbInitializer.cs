@@ -16,6 +16,7 @@ public static class DbInitializer
             var admin = new User
             {
                 Username = "admin",
+                Email = "admin@ems.com",
                 PasswordHash = passwordHasher.Hash("Admin@123"),
                 Role = UserRole.Admin,
                 IsActive = true
@@ -24,6 +25,7 @@ public static class DbInitializer
             var standardUser = new User
             {
                 Username = "john.user",
+                Email = "john.user@ems.com",
                 PasswordHash = passwordHasher.Hash("User@123"),
                 Role = UserRole.User,
                 IsActive = true

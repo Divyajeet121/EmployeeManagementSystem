@@ -33,6 +33,8 @@ EmployeeManagement.Api  ---->  EmployeeManagement.Infrastructure  ---->  Employe
 - `AuthService.LoginAsync` validates credentials using `IPasswordHasher` (ASP.NET Core Identity's PBKDF2-based hasher) and issues a signed JWT via `IJwtTokenGenerator`.
 - The JWT carries the user id, username, and role as claims; `Program.cs` configures `JwtBearer` authentication to validate issuer, audience, lifetime, and signing key.
 - Controllers use `[Authorize]` for any authenticated user and `[Authorize(Roles = "Admin")]` to restrict create/update/delete operations to administrators.
+- `LoginResponseDto` returns the username, email, and role alongside the token so the frontend can render a personalized profile experience without a separate lookup call.
+- The login form includes a show/hide toggle on the password field, switching the input type between `password` and `text` and swapping the eye icon accordingly.
 
 ## Data Layer
 
@@ -42,13 +44,14 @@ EmployeeManagement.Api  ---->  EmployeeManagement.Infrastructure  ---->  Employe
 
 ## Frontend
 
-The frontend is a static site served from `wwwroot` (no SPA framework, per the assignment's "no React/Angular" requirement):
+The frontend is a static site built with vanilla JavaScript and Bootstrap 5, served directly from `wwwroot`:
 
-- `index.html` + `js/login.js` — login form, stores the JWT/username/role in `sessionStorage`.
-- `js/api.js` — a thin Fetch wrapper that attaches the bearer token, normalizes errors, and redirects to login on `401`.
-- `js/layout.js` — renders a shared navbar and handles logout.
-- `pages/dashboard.html` + `js/dashboard.js` — summary cards backed by `/api/dashboard/summary`.
-- `pages/employees.html` + `js/employees.js` — paginated/searchable employee table, Bootstrap modals for add/edit and delete confirmation, and role-aware UI (only Admins see Add/Edit/Delete controls).
+- `index.html` + `js/login.js` — the login form validates input, authenticates against `/api/auth/login`, toggles password visibility through an eye-icon button, and stores the returned token, username, email, and role in `sessionStorage`. `Program.cs` serves this page at the root path `/` via `UseDefaultFiles`, so the address bar never shows `index.html`.
+- `js/api.js` — a thin Fetch wrapper that attaches the bearer token to every request, reads/writes the session values (`token`, `username`, `email`, `role`), normalizes API error responses into a single `Error`, and redirects back to the login page whenever the server responds with `401`.
+- `js/layout.js` — builds the shared navbar for every authenticated page, including a profile dropdown with an avatar (the user's initial on a colored circle), the username, role badge, email address, and a logout action that calls `/api/auth/logout`, clears the session, and redirects to `/`.
+- `pages/dashboard.html` + `js/dashboard.js` — a CRM-style landing page with a personalized greeting and current date, colored summary cards (total/active/inactive employees with icons) sourced from `/api/dashboard/summary`, a department distribution panel rendered as horizontal bar rows computed client-side from the employee list, and a "Recently Added" panel listing the latest employees with their status badges.
+- `pages/employees.html` + `js/employees.js` — a paginated, searchable, filterable employee table with Bootstrap modals for adding/editing employees and confirming deletions; only Admins see the Add/Edit/Delete controls, enforced by checking the role stored in the session.
+- `Program.cs` rewrites the clean paths `/dashboard` and `/employees` to `pages/dashboard.html` and `pages/employees.html` respectively via `UseRewriter`, so users navigate with short URLs while the underlying static files stay organized under `pages/`.
 
 ## Cross-Cutting Concerns
 

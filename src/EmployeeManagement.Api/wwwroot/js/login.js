@@ -1,12 +1,23 @@
 (function () {
     if (isAuthenticated()) {
-        window.location.href = "pages/dashboard.html";
+        window.location.href = "/dashboard";
         return;
     }
 
     const form = document.getElementById("loginForm");
     const alertBox = document.getElementById("loginAlert");
     const loginButton = document.getElementById("loginButton");
+    const passwordInput = document.getElementById("password");
+    const togglePasswordButton = document.getElementById("togglePasswordButton");
+    const togglePasswordIcon = document.getElementById("togglePasswordIcon");
+
+    togglePasswordButton.addEventListener("click", function () {
+        const isVisible = passwordInput.type === "text";
+        passwordInput.type = isVisible ? "password" : "text";
+        togglePasswordIcon.classList.toggle("bi-eye", isVisible);
+        togglePasswordIcon.classList.toggle("bi-eye-slash", !isVisible);
+        togglePasswordButton.setAttribute("aria-label", isVisible ? "Show password" : "Hide password");
+    });
 
     function showError(message) {
         alertBox.textContent = message;
@@ -40,8 +51,8 @@
                 body: { username, password }
             });
 
-            saveSession(result.token, result.username, result.role);
-            window.location.href = "pages/dashboard.html";
+            saveSession(result.token, result.username, result.email, result.role);
+            window.location.href = "/dashboard";
         } catch (error) {
             showError(error.message);
         } finally {

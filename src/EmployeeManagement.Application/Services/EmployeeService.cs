@@ -57,7 +57,6 @@ public class EmployeeService : IEmployeeService
         };
 
         await _employeeRepository.AddAsync(employee);
-        await _employeeRepository.SaveChangesAsync();
 
         return MapToDto(employee);
     }
@@ -83,8 +82,7 @@ public class EmployeeService : IEmployeeService
         employee.ModifiedBy = currentUserId;
         employee.ModifiedOn = DateTime.UtcNow;
 
-        _employeeRepository.Update(employee);
-        await _employeeRepository.SaveChangesAsync();
+        await _employeeRepository.UpdateAsync(employee);
 
         return MapToDto(employee);
     }
@@ -94,8 +92,7 @@ public class EmployeeService : IEmployeeService
         var employee = await _employeeRepository.GetByIdAsync(employeeId)
             ?? throw new NotFoundException($"Employee with id {employeeId} was not found.");
 
-        _employeeRepository.Remove(employee);
-        await _employeeRepository.SaveChangesAsync();
+        await _employeeRepository.DeleteAsync(employee.EmployeeId);
     }
 
     public Task<DashboardSummaryDto> GetDashboardSummaryAsync()
