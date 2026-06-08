@@ -1,0 +1,51 @@
+body {
+    background-color: #f4f6f9;
+}
+
+.navbar-brand {
+    font-weight: 600;
+}
+
+.card-summary {
+    border: none;
+    border-radius: 0.75rem;
+    color: #fff;
+}
+
+.card-summary .card-body {
+    padding: 1.5rem;
+}
+
+.card-summary .summary-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.bg-total {
+    background: linear-gradient(135deg, #4e73df, #224abe);
+}
+
+.bg-active {
+    background: linear-gradient(135deg, #1cc88a, #13855c);
+}
+
+.bg-inactive {
+    background: linear-gradient(135deg, #e74a3b, #be2617);
+}
+
+.login-card {
+    max-width: 420px;
+    margin: 8vh auto 0 auto;
+}
+
+.table-actions button {
+    margin-right: 0.25rem;
+}
+
+.status-badge-active {
+    background-color: #1cc88a;
+}
+
+.status-badge-inactive {
+    background-color: #e74a3b;
+}
